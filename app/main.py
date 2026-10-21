@@ -23,7 +23,9 @@ from .auth import (
 )
 from .db import Base, engine, get_db
 from .models import ACTIVE_STATUSES, HELD, PICKED_UP, Claim, Listing, User, utcnow
+from .api import router as api_router
 from .notify import notify_new_listing
+from .observability import RequestLogMiddleware
 
 HERE = Path(__file__).parent
 TZ = ZoneInfo(os.environ.get("TIMEZONE", "America/New_York"))
@@ -32,13 +34,15 @@ TZ = ZoneInfo(os.environ.get("TIMEZONE", "America/New_York"))
 Base.metadata.create_all(engine)
 
 app = FastAPI(title="Leftover")
+app.add_middleware(RequestLogMiddleware)
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.environ.get("SECRET_KEY", "dev-only-secret-change-me"),
+    secret_key=os.environ.get("SECRET_KEY", "dev-only-secret-change-me-before-deploying"),
     same_site="lax",
     https_only=os.environ.get("BASE_URL", "").startswith("https://"),
     max_age=60 * 60 * 24 * 30,
 )
+app.include_router(api_router)
 app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 templates = Jinja2Templates(directory=HERE / "templates")
 templates.env.filters["local"] = lambda dt: dt.astimezone(TZ).strftime("%a %b %-d, %-I:%M %p")
@@ -278,6 +282,12 @@ def stats(request: Request, db: Session = Depends(get_db), user: User | None = D
         "Signed-up users": db.scalar(select(func.count()).select_from(User)),
     }
     return render(request, "stats.html", user, numbers=numbers)
+
+
+@app.get("/health")
+def health(db: Session = Depends(get_db)):
+    db.execute(select(1))
+    return {"status": "ok"}
 
 
 @app.get("/healthz")

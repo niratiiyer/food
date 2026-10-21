@@ -1,0 +1,43 @@
+# Start everything with:  docker compose up --build
+#   React dashboard:          http://localhost:3000
+#   Main site + API (FastAPI): http://localhost:8000   (API docs at /docs)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: leftover
+      POSTGRES_PASSWORD: leftover
+      POSTGRES_DB: leftover
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leftover"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: .
+    image: leftover-backend
+    environment:
+      DATABASE_URL: postgresql://leftover:leftover@db:5432/leftover
+      SECRET_KEY: ${SECRET_KEY:-local-docker-secret-change-me-for-real-deploys}
+      TIMEZONE: ${TIMEZONE:-America/New_York}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    image: leftover-frontend
+    environment:
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  db-data:
