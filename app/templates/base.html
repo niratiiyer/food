@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Leftover{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+  <header>
+    <a class="brand" href="/">Leftover</a>
+    <nav>
+      <a href="/stats">Impact</a>
+      {% if user %}
+        {% if user.is_host %}<a href="/host">Post food</a>{% endif %}
+        <form method="post" action="/logout"><button class="link">Log out</button></form>
+      {% else %}
+        <a href="/login">Log in</a>
+        <a class="button small" href="/signup">Sign up</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    {% if flash %}<div class="flash">{{ flash }}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

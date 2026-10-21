@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Free food on campus, right now</h1>
+<p class="muted">Leftovers from club events and dining. Claim a portion, show your code at pickup.</p>
+
+{% if user and my_claims %}
+<section class="card">
+  <h2>Your claims</h2>
+  {% for c in my_claims %}
+  <div class="row">
+    <div>
+      <strong>{{ c.listing.title }}</strong> at {{ c.listing.location }}<br>
+      {% if c.status == "held" %}
+        Code <span class="code">{{ c.pickup_code }}</span> &middot; pick up by {{ c.expires_at | local }}
+      {% else %}
+        <span class="muted">Picked up. Enjoy!</span>
+      {% endif %}
+    </div>
+    {% if c.status == "held" %}
+    <form method="post" action="/claims/{{ c.id }}/cancel"><button class="secondary">Cancel</button></form>
+    {% endif %}
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+<h2>Available now</h2>
+{% for l in listings %}
+<article class="card">
+  <div class="row">
+    <div>
+      <h3>{{ l.title }}</h3>
+      <p>{{ l.location }} &middot; until {{ l.available_until | local }}</p>
+      {% if l.description %}<p class="muted">{{ l.description }}</p>{% endif %}
+    </div>
+    <div class="right">
+      <div class="count">{{ remaining[l.id] }} <span>of {{ l.portions }} left</span></div>
+      {% if not user %}
+        <a class="button" href="/login">Log in to claim</a>
+      {% elif l.id in claimed_ids %}
+        <span class="muted">Claimed</span>
+      {% elif remaining[l.id] > 0 %}
+        <form method="post" action="/listings/{{ l.id }}/claim"><button>Claim one</button></form>
+      {% else %}
+        <span class="muted">All claimed</span>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% else %}
+<p class="card muted">Nothing up right now. {% if user %}You'll get an email when food is posted.{% else %}Sign up to get an email when food is posted.{% endif %}</p>
+{% endfor %}
+
+{% if user %}
+<form method="post" action="/settings/alerts" class="muted small-text">
+  Email alerts are <strong>{{ "on" if user.wants_alerts else "off" }}</strong>.
+  <button class="link">Turn {{ "off" if user.wants_alerts else "on" }}</button>
+</form>
+{% endif %}
+{% endblock %}

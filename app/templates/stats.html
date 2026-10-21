@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Impact · Leftover{% endblock %}
+{% block content %}
+<h1>Impact so far</h1>
+<div class="stats">
+  {% for label, value in numbers.items() %}
+  <div class="card stat"><div class="count">{{ value }}</div><div class="muted">{{ label }}</div></div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Post food · Leftover{% endblock %}
+{% block content %}
+<h1>Post leftover food</h1>
+<form method="post" action="/host/listings" class="card">
+  <label>What is it? <input name="title" required maxlength="120" placeholder="Cheese and veggie pizza"></label>
+  <label>Where to pick up <input name="location" required maxlength="200" placeholder="Student Union room 210"></label>
+  <div class="two">
+    <label>How many portions <input type="number" name="portions" min="1" max="500" value="10" required></label>
+    <label>Available until <input type="datetime-local" name="available_until" value="{{ default_until }}" required></label>
+  </div>
+  <label>Notes (allergens, bring a container, etc.) <textarea name="description" rows="2"></textarea></label>
+  <button>Post and notify students</button>
+</form>
+
+<h2>Your listings</h2>
+{% for l in listings %}
+<section class="card">
+  <div class="row">
+    <div>
+      <h3>{{ l.title }}</h3>
+      <p class="muted">{{ l.location }} &middot; until {{ l.available_until | local }}
+        {% if l.closed %}&middot; closed{% endif %}</p>
+    </div>
+    <div class="right">
+      <div class="count">{{ remaining[l.id] }} <span>of {{ l.portions }} left</span></div>
+      {% if not l.closed and l.available_until > now %}
+      <form method="post" action="/host/listings/{{ l.id }}/close"><button class="secondary">Close</button></form>
+      {% endif %}
+    </div>
+  </div>
+  {% set live = l.claims | selectattr("status", "in", [HELD, PICKED_UP]) | list %}
+  {% if live %}
+  <table>
+    <tr><th>Code</th><th>Student</th><th>Status</th><th></th></tr>
+    {% for c in live %}
+    <tr>
+      <td class="code">{{ c.pickup_code }}</td>
+      <td>{{ c.user.name }}</td>
+      <td>{% if c.status == HELD %}held until {{ c.expires_at | local }}{% else %}picked up{% endif %}</td>
+      <td>{% if c.status == HELD %}
+        <form method="post" action="/host/claims/{{ c.id }}/pickup"><button class="small">Picked up</button></form>
+      {% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted">No claims yet.</p>
+  {% endif %}
+</section>
+{% else %}
+<p class="muted">You haven't posted anything yet.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Sign up · Leftover{% endblock %}
+{% block content %}
+<form method="post" action="/signup" class="card narrow">
+  <h1>Sign up</h1>
+  <label>Name <input name="name" required maxlength="100" autocomplete="name"></label>
+  <label>Campus email <input type="email" name="email" required autocomplete="email"
+    {% if domain %}placeholder="you@{{ domain }}"{% endif %}></label>
+  <label>Password (8+ characters) <input type="password" name="password" required minlength="8" autocomplete="new-password"></label>
+  <label class="check"><input type="checkbox" name="is_host" value="true"> I run events or a dining hall and want to post leftover food</label>
+  <button>Create account</button>
+</form>
+{% endblock %}
