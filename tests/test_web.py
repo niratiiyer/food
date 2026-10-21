@@ -14,6 +14,7 @@ def signup(client, name, host=False):
 
 
 def test_host_posts_and_student_claims(capsys):
+    """Email alerts are off by default: posting shows on the site but sends nothing."""
     host, student = TestClient(app), TestClient(app)
     signup(host, "hana", host=True)
     signup(student, "sam")
@@ -21,11 +22,13 @@ def test_host_posts_and_student_claims(capsys):
     until = (datetime.now(TZ) + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M")
     r = host.post("/host/listings", data={"title": "Bagels", "location": "Library steps",
                                           "portions": "4", "available_until": until})
-    assert "Bagels" in r.text
-    assert "Free food: Bagels" in capsys.readouterr().out  # sam was emailed
+    assert "Bagels" in r.text and "now on the home page" in r.text
+    assert "notify" not in r.text
+    assert "Free food: Bagels" not in capsys.readouterr().out  # nobody was emailed
 
     r = student.get("/")
     assert "Bagels" in r.text and "4 <span>of 4 left" in r.text
+    assert "Email alerts" not in r.text
     r = student.post("/listings/1/claim")
     assert "Your pickup code is" in r.text and "3 <span>of 4 left" in r.text
 
@@ -47,3 +50,16 @@ def test_students_cannot_open_host_page():
 def test_logged_out_claim_redirects_to_login():
     r = TestClient(app).post("/listings/1/claim")
     assert r.url.path == "/login"
+
+
+def test_email_alerts_can_be_turned_back_on(monkeypatch, capsys):
+    monkeypatch.setenv("EMAIL_ALERTS", "on")
+    host, student = TestClient(app), TestClient(app)
+    signup(host, "hana", host=True)
+    signup(student, "sam")
+    until = (datetime.now(TZ) + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M")
+    r = host.post("/host/listings", data={"title": "Bagels", "location": "Library steps",
+                                          "portions": "4", "available_until": until})
+    assert "Students are being notified" in r.text
+    assert "Free food: Bagels" in capsys.readouterr().out
+    assert "Email alerts are" in student.get("/").text

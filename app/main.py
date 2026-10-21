@@ -44,6 +44,14 @@ templates = Jinja2Templates(directory=HERE / "templates")
 templates.env.filters["local"] = lambda dt: dt.astimezone(TZ).strftime("%a %b %-d, %-I:%M %p")
 
 
+def alerts_on() -> bool:
+    """Email alerts are off unless EMAIL_ALERTS=on is set (sending email to everyone costs money)."""
+    return os.environ.get("EMAIL_ALERTS", "off").strip().lower() == "on"
+
+
+templates.env.globals["alerts_on"] = alerts_on
+
+
 def flash(request: Request, message: str) -> None:
     request.session["flash"] = message
 
@@ -227,8 +235,11 @@ def create_listing(
     )
     db.add(listing)
     db.commit()
-    background.add_task(notify_new_listing, listing.id)  # runs after the page responds
-    flash(request, "Posted! Students are being notified.")
+    if alerts_on():
+        background.add_task(notify_new_listing, listing.id)  # runs after the page responds
+        flash(request, "Posted! Students are being notified.")
+    else:
+        flash(request, "Posted! It's now on the home page for students to claim.")
     return back_to("/host")
 
 

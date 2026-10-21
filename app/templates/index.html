@@ -48,10 +48,10 @@
   </div>
 </article>
 {% else %}
-<p class="card muted">Nothing up right now. {% if user %}You'll get an email when food is posted.{% else %}Sign up to get an email when food is posted.{% endif %}</p>
+<p class="card muted">Nothing up right now. {% if alerts_on() %}{% if user %}You'll get an email when food is posted.{% else %}Sign up to get an email when food is posted.{% endif %}{% else %}Check back after campus events. New food shows up here.{% endif %}</p>
 {% endfor %}
 
-{% if user %}
+{% if user and alerts_on() %}
 <form method="post" action="/settings/alerts" class="muted small-text">
   Email alerts are <strong>{{ "on" if user.wants_alerts else "off" }}</strong>.
   <button class="link">Turn {{ "off" if user.wants_alerts else "on" }}</button>

@@ -4,10 +4,10 @@ A web app that matches surplus food from club events and dining halls with
 students who want it.
 
 - **Hosts** post leftover food: what it is, where, how many portions, and until when.
-- **Students** get an email, claim a portion, and get a 4-letter pickup code.
+- **Students** see what's available, claim a portion, and get a 4-letter pickup code.
 - A claim is a **hold that expires** (15 minutes by default). No-shows free the portion up for someone else.
 - **Two students can never get the same last portion.** Claims lock the listing's database row, so they run one at a time (see `app/claims.py`, proven by `tests/test_claims.py::test_many_students_race_for_the_last_portion`).
-- **Fair alerts:** students with the fewest pickups this week are emailed first (`app/notify.py`).
+- **Optional email alerts (off by default, since sending to everyone costs money):** set `EMAIL_ALERTS=on` to email students about new food, fewest-pickups-this-week first (`app/notify.py`).
 - **Public impact page** at `/stats`: meals rescued, students fed, and so on.
 
 Stack: Python (FastAPI), Postgres, server-rendered HTML. Deploys to Render's free tier.

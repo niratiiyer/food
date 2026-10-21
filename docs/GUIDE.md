@@ -7,7 +7,7 @@ Each step says **what to do** and **how to tell it worked**.
 - Part 2: Run the app on your own computer
 - Part 3: Try it out as a host and as a student
 - Part 4: Put it on the internet with Render
-- Part 5: Turn on real email alerts
+- Part 5: Optional: email alerts (off by default)
 - Part 6: Get real users and track usage
 - Part 7: What to build next
 - Part 8: How to talk about it in interviews
@@ -112,8 +112,8 @@ Worked if: it ends with `10 passed`. One of the tests has 30 fake students claim
 ## Part 3: Try it out
 
 1. Go to http://localhost:8000/signup. Make an account, tick **"I run events…"**, and you're a **host**.
-2. Fill in the form and click **Post and notify students**.
-3. Look at the terminal where the app is running. You'll see the alert emails printed there. They aren't really sent until Part 5.
+2. Fill in the form and click **Post food**.
+3. The listing now shows on the home page. Email alerts are off, so students find food by checking the site (see Part 5 if you ever want emails).
 4. Open a **private/incognito window** (so you're logged out), sign up as a student without ticking the box, and click **Claim one**. You get a pickup code.
 5. Back in the host window, refresh **Post food**. You'll see the student and their code. Click **Picked up**.
 6. Visit http://localhost:8000/stats to see the impact numbers.
@@ -135,7 +135,7 @@ The code is already in your GitHub repo `niratiiyer/food`. Make sure its branch 
 4. It asks you to fill in the settings marked `sync: false`:
    - `ALLOWED_EMAIL_DOMAIN`: your school's email domain, e.g. `yourschool.edu`. Only those emails can sign up.
    - `BASE_URL`: leave it blank for now.
-   - `RESEND_API_KEY`, `EMAIL_FROM`: leave them blank until Part 5.
+   - `RESEND_API_KEY`, `EMAIL_FROM`: leave them blank. They're only for the optional email alerts in Part 5.
 5. Click **Apply**. The first build takes a few minutes.
 6. When it's done, open the `leftover` service. Its URL is at the top, something like `https://leftover-xxxx.onrender.com`. Copy it, go to **Environment**, set `BASE_URL` to it, and save. The app redeploys.
 
@@ -148,11 +148,13 @@ From now on, **every time you merge into main, Render redeploys automatically.**
 - **The free Postgres database expires after 30 days.** After a 14-day grace period, Render **deletes it along with all your data.** Before real students use the app, do one of these:
   - upgrade the database to Render's cheapest paid plan (a few dollars a month), or
   - use a free Postgres from another provider such as Neon (https://neon.tech): create a database there, copy its connection string, and paste it into the `DATABASE_URL` setting on Render.
-- **Free Render services can't send email over SMTP** (ports 25, 465 and 587 are blocked). That's why this app sends email over Resend's web API instead (Part 5).
+- **Free Render services can't send email over SMTP** (ports 25, 465 and 587 are blocked). That's why the optional email alerts use Resend's web API instead (Part 5).
 
 ---
 
-## Part 5: Turn on real email alerts
+## Part 5: Optional: email alerts (off by default)
+
+The app works without email: students check the site to see what's available. Alerts are switched off because emailing every student needs a paid domain (about $10/year). If you ever want them, follow these steps, then set `EMAIL_ALERTS` to `on` in Render's Environment settings.
 
 1. Sign up at https://resend.com (it has a free plan).
 2. Go to **API Keys** → **Create API Key**. Copy the key (it starts with `re_`).
@@ -184,7 +186,7 @@ The app is just a tool. The users come from your nonprofit work.
 2. **Host approval.** Right now anyone can tick "I'm a host". Add an admin flag and an approval step.
 3. **Database migrations with Alembic.** The app creates tables on startup but can't *change* existing ones. Once you have real data, use Alembic (https://alembic.sqlalchemy.org) for any table change.
 4. **Rate limiting and password reset.**
-5. **Text alerts** (costs money, see Part 5).
+5. **Text or email alerts** (both cost money; email is already built in, see Part 5).
 6. **Better priority rules.** Let students pick the locations they care about, and only alert them for those.
 
 ---
@@ -196,6 +198,6 @@ Have these ready:
 - **The problem:** "Clubs throw away food after events while students on the same campus skip meals. It grew out of the food-insecurity nonprofit I started."
 - **The numbers:** "X meals rescued, Y students, Z hosts, over N weeks." (from `/stats`)
 - **The hard part:** "When 30 students tap Claim on the last 2 slices at the same moment, a naive version hands out more slices than exist. I wrote a test that proves this: without the lock, 4 students got 2 slices. The fix: each claim runs in a database transaction that first locks the listing's row with `SELECT ... FOR UPDATE`, so claims on one listing run one at a time. A unique index in Postgres is the backstop. Claims are holds that expire after 15 minutes, so no-shows don't waste food."
-- **A tradeoff:** "Email over SMS because SMS costs money per message. Fewest-recent-pickups-first alerting, so the fastest clickers don't take everything."
+- **A tradeoff:** "I kept it free to run: no SMS or email at launch, because both cost money per message. Email alerts are built in behind an on/off switch, with a fewest-recent-pickups-first rule so the fastest clickers don't take everything."
 
 Know `app/claims.py` well enough to explain it line by line on a whiteboard.

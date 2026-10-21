@@ -10,7 +10,7 @@
     <label>Available until <input type="datetime-local" name="available_until" value="{{ default_until }}" required></label>
   </div>
   <label>Notes (allergens, bring a container, etc.) <textarea name="description" rows="2"></textarea></label>
-  <button>Post and notify students</button>
+  <button>{% if alerts_on() %}Post and notify students{% else %}Post food{% endif %}</button>
 </form>
 
 <h2>Your listings</h2>
