@@ -1,4 +1,3 @@
-# Backend: the FastAPI app (server-rendered site + /api).
 FROM python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1

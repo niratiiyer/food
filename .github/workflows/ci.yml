@@ -80,8 +80,6 @@ jobs:
         if: failure()
         run: docker compose logs
 
-      # On pushes to main, publish the images to GitHub Container Registry (ghcr.io)
-      # so a cloud host like Azure Container Apps can pull them.
       - name: Log in to GitHub Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3

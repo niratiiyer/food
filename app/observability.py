@@ -1,6 +1,3 @@
-"""Request logging. Every request is logged as one JSON line with a timestamp,
-method, endpoint, status code and response time. If DD_API_KEY is set, the same
-lines are also shipped to Datadog's log intake in small batches."""
 import json
 import os
 import queue

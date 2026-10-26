@@ -13,7 +13,7 @@ export function saveToken(token) {
     if (token) localStorage.setItem(TOKEN_KEY, token)
     else localStorage.removeItem(TOKEN_KEY)
   } catch {
-    // storage blocked (private mode); the user just logs in again next time
+    // storage can be blocked in private mode
   }
 }
 

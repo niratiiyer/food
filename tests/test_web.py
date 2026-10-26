@@ -1,4 +1,3 @@
-"""Clicks through the site like a real host and student would."""
 from datetime import datetime, timedelta
 
 from fastapi.testclient import TestClient
@@ -14,7 +13,6 @@ def signup(client, name, host=False):
 
 
 def test_host_posts_and_student_claims(capsys):
-    """Email alerts are off by default: posting shows on the site but sends nothing."""
     host, student = TestClient(app), TestClient(app)
     signup(host, "hana", host=True)
     signup(student, "sam")

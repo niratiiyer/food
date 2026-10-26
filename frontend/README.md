@@ -1,12 +1,10 @@
-# Leftover dashboard (React)
+# frontend
 
-A React page that calls the Leftover API: a chart of meals rescued over the last 30 days,
-a table of food available now, and (after logging in with a JWT) claiming and your claims.
+React dashboard for Leftover: daily chart, food available now, and claiming once logged in.
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173, expects the backend on http://localhost:8000
-npm run build    # production files in dist/
+npm run dev      # expects the backend on localhost:8000
 ```
 
-In Docker, nginx serves the built files and forwards `/api/*` to the backend set in `BACKEND_URL`.
+In Docker, nginx serves the build and proxies `/api/*` to `BACKEND_URL`.

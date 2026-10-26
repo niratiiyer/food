@@ -49,7 +49,6 @@ templates.env.filters["local"] = lambda dt: dt.astimezone(TZ).strftime("%a %b %-
 
 
 def alerts_on() -> bool:
-    """Email alerts are off unless EMAIL_ALERTS=on is set (sending email to everyone costs money)."""
     return os.environ.get("EMAIL_ALERTS", "off").strip().lower() == "on"
 
 

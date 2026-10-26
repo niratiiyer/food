@@ -1,7 +1,7 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-// In development, requests to /api go to the FastAPI backend on port 8000.
+// dev server proxies /api to the backend
 export default defineConfig({
   plugins: [react()],
   server: {

@@ -1,8 +1,4 @@
-"""Tests run against a real Postgres database named leftover_test.
-
-Create it once with:  createdb leftover_test
-(or set TEST_DATABASE_URL to point somewhere else).
-"""
+# needs a Postgres database: createdb leftover_test (or set TEST_DATABASE_URL)
 import os
 
 os.environ["DATABASE_URL"] = os.environ.get(

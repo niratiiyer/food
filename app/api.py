@@ -1,5 +1,3 @@
-"""JSON API used by the React dashboard. Log in at POST /api/token to get a JWT,
-then send it as `Authorization: Bearer <token>` to the protected endpoints."""
 import os
 from collections import Counter
 from datetime import timedelta
